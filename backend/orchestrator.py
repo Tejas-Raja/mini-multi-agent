@@ -1,8 +1,8 @@
-from agents.researcher import ResearcherAgent
-from agents.planner import PlannerAgent
-from agents.writer import WriterAgent
-from agents.critic import CriticAgent
-from memory.store import MemoryStore
+from backend.agents.researcher import ResearcherAgent
+from backend.agents.planner import PlannerAgent
+from backend.agents.writer import WriterAgent
+from backend.agents.critic import CriticAgent
+from backend.memory.store import MemoryStore
 
 class Orchestrator:
     def __init__(self, max_iterations=2):

@@ -1,6 +1,6 @@
 from langchain_core.messages import SystemMessage, HumanMessage
-from config import get_llm
-from prompts import PLANNER_PROMPT
+from backend.config import get_llm
+from backend.prompts import PLANNER_PROMPT
 
 class PlannerAgent:
     def __init__(self):

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from orchestrator import Orchestrator
+from backend.orchestrator import Orchestrator
 
 app = FastAPI(title="Multi-Agent AI System", version="1.0.0")
 

@@ -1,6 +1,6 @@
 from langchain_core.messages import SystemMessage, HumanMessage
-from config import get_llm
-from prompts import CRITIC_PROMPT
+from backend.config import get_llm
+from backend.prompts import CRITIC_PROMPT
 
 class CriticAgent:
     def __init__(self):

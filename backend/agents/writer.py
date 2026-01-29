@@ -1,6 +1,6 @@
 from langchain_core.messages import SystemMessage, HumanMessage
-from config import get_llm
-from prompts import WRITER_PROMPT
+from backend.config import get_llm
+from backend.prompts import WRITER_PROMPT
 
 class WriterAgent:
     def __init__(self):
