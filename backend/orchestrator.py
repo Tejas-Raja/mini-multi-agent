@@ -5,7 +5,7 @@ from backend.agents.critic import CriticAgent
 from backend.memory.store import MemoryStore
 
 class Orchestrator:
-    def __init__(self, max_iterations=2):
+    def __init__(self, max_iterations=1):
         self.researcher = ResearcherAgent()
         self.planner = PlannerAgent()
         self.writer = WriterAgent()
