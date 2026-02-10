@@ -1,29 +1,35 @@
 import { useState } from "react";
-import { runAgents } from "./api";
 import PromptBox from "./components/PromptBox";
 import AgentPanel from "./components/AgentPanel";
 import FinalOutput from "./components/FinalOutput";
+import { useAgentSocket } from "./useAgentSocket";
+import { typeText } from "./utils/typewriter";
 
 function App() {
-  const [logs, setLogs] = useState([]);
-  const [finalOutput, setFinalOutput] = useState("");
+  const [agents, setAgents] = useState({});
+  const [finalAnswer, setFinalAnswer] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleRun = async (task) => {
-    setLoading(true);
-    setLogs([]);
-    setFinalOutput("");
-
-    try {
-      const result = await runAgents(task);
-      setLogs(result.logs);
-      setFinalOutput(result.final);
-    } catch (err) {
-      alert("Error calling backend");
-      console.error(err);
-    } finally {
+  const handleMessage = (msg) => {
+    if (msg.type === "final") {
+      typeText(msg.content, setFinalAnswer);
       setLoading(false);
+      return;
     }
+
+    setAgents((prev) => ({
+      ...prev,
+      [msg.agent]: msg.content,
+    }));
+  };
+
+  const { connect } = useAgentSocket(handleMessage);
+
+  const handleRun = (task) => {
+    setAgents({});
+    setFinalAnswer("");
+    setLoading(true);
+    connect(task);
   };
 
   return (
@@ -32,15 +38,19 @@ function App() {
 
       <PromptBox onSubmit={handleRun} loading={loading} />
 
-      {logs.map((log, idx) => (
-        <AgentPanel
-          key={idx}
-          agent={log.agent}
-          content={log.content}
-        />
-      ))}
+      {finalAnswer && (
+        <FinalOutput content={finalAnswer} />
+      )}
 
-      <FinalOutput content={finalOutput} />
+      <div style={{ marginTop: "20px" }}>
+        {Object.entries(agents).map(([agent, content]) => (
+          <AgentPanel
+            key={agent}
+            agent={agent}
+            content={content}
+          />
+        ))}
+      </div>
     </div>
   );
 }

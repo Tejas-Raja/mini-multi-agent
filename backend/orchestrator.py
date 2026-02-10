@@ -10,33 +10,47 @@ class Orchestrator:
         self.planner = PlannerAgent()
         self.writer = WriterAgent()
         self.critic = CriticAgent()
-        self.memory = MemoryStore()
-        self.max_iterations = max_iterations
 
-    async def run(self, task: str):
-        self.memory.clear()
-
+    async def run_stream(self, task: str):
+        # Researcher
         research = await self.researcher.run(task)
-        self.memory.add("Researcher", research)
+        yield {
+            "agent": "Researcher",
+            "type": "done",
+            "content": research
+        }
 
-        plan_input = self.memory.get_context()
-        plan = await self.planner.run(plan_input)
-        self.memory.add("Planner", plan)
+        # Planner
+        plan = await self.planner.run(research)
+        yield {
+            "agent": "Planner",
+            "type": "done",
+            "content": plan
+        }
 
-        draft_input = self.memory.get_context()
-        draft = await self.writer.run(draft_input)
-        self.memory.add("Writer", draft)
+        # Writer (draft)
+        draft = await self.writer.run(plan)
+        yield {
+            "agent": "Writer",
+            "type": "done",
+            "content": draft
+        }
 
-        for _ in range(self.max_iterations):
-            critique_input = self.memory.get_context()
-            critique = await self.critic.run(critique_input)
-            self.memory.add("Critic", critique)
+        # Critic
+        critique = await self.critic.run(draft)
+        yield {
+            "agent": "Critic",
+            "type": "done",
+            "content": critique
+        }
 
-            improve_input = self.memory.get_context() + "\nImprove the content based on critique."
-            draft = await self.writer.run(improve_input)
-            self.memory.add("Writer", draft)
+        # Writer (final)
+        improved = await self.writer.run(
+            f"Improve the following based on critique:\n{critique}\n\n{draft}"
+        )
 
-        return {
-            "final": draft,
-            "logs": self.memory.history
+        yield {
+            "agent": "Final",
+            "type": "final",
+            "content": improved
         }

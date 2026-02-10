@@ -2,6 +2,23 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from backend.orchestrator import Orchestrator
+from fastapi import WebSocket
+from backend.orchestrator import Orchestrator
+
+@app.websocket("/ws/run")
+async def run_agents_ws(websocket: WebSocket):
+    await websocket.accept()
+
+    data = await websocket.receive_json()
+    task = data.get("task")
+
+    orchestrator = Orchestrator()
+
+    async for message in orchestrator.run_stream(task):
+        await websocket.send_json(message)
+
+    await websocket.close()
+
 
 app = FastAPI(title="Multi-Agent AI System", version="1.0.0")
 
